@@ -1,0 +1,52 @@
+# Free nightly backup of the Supabase database + payment screenshots.
+# Runs every night at 02:00 Addis Ababa time (23:00 UTC). Also keeps the free project from pausing.
+# Repository secrets needed (Settings → Secrets and variables → Actions):
+#   SUPABASE_DB_URL       – Supabase → Project Settings → Database → Connection string (URI, "Session pooler")
+#   SUPABASE_URL          – https://YOUR-PROJECT.supabase.co
+#   SUPABASE_SERVICE_KEY  – Supabase → Project Settings → API → service_role key (keep secret!)
+name: Nightly backup
+on:
+  schedule: [{ cron: "0 23 * * *" }]
+  workflow_dispatch: {}
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install PostgreSQL 17 client
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client-17
+      - name: Dump database
+        env: { SUPABASE_DB_URL: "${{ secrets.SUPABASE_DB_URL }}" }
+        run: |
+          mkdir -p backup
+          /usr/lib/postgresql/17/bin/pg_dump "$SUPABASE_DB_URL" --schema=public --no-owner --no-privileges --format=custom --file=backup/guya-db.dump
+          /usr/lib/postgresql/17/bin/psql "$SUPABASE_DB_URL" -c "update public.heartbeat set at = now() where id = 1;"
+      - name: Download payment screenshots
+        env: { SUPABASE_URL: "${{ secrets.SUPABASE_URL }}", SUPABASE_SERVICE_KEY: "${{ secrets.SUPABASE_SERVICE_KEY }}" }
+        run: |
+          npm i --no-save @supabase/supabase-js@2 >/dev/null
+          node -e '
+            const { createClient } = require("@supabase/supabase-js"); const fs = require("fs"); const path = require("path");
+            const s = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+            (async () => {
+              const b = "payment-screenshots"; let n = 0;
+              const { data: dirs } = await s.storage.from(b).list("", { limit: 10000 });
+              for (const d of dirs ?? []) {
+                const { data: files } = await s.storage.from(b).list(d.name, { limit: 10000 });
+                for (const f of files ?? []) {
+                  const p = `${d.name}/${f.name}`; const { data } = await s.storage.from(b).download(p);
+                  if (!data) continue; fs.mkdirSync(path.join("backup/screenshots", d.name), { recursive: true });
+                  fs.writeFileSync(path.join("backup/screenshots", p), Buffer.from(await data.arrayBuffer())); n++;
+                }
+              }
+              console.log("screenshots:", n);
+            })();'
+      - name: Keep backup for 90 days
+        uses: actions/upload-artifact@v4
+        with:
+          name: guya-backup-${{ github.run_id }}
+          path: backup
+          retention-days: 90

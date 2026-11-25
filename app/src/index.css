@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #1f6e7f;
+  --color-brand-dark: #15505c;
+  --color-brand-deep: #103f49;
+  --color-brand-light: #e1f1f4;
+  --color-brand-tint: #eef7f9;
+  --color-sky: #2f7fa6;
+  --color-sky-soft: #5eb1c3;
+  --color-sky-light: #e2f0f7;
+  --color-leaf: #35633f;
+  --color-leaf-mid: #4f8a5b;
+  --color-leaf-dark: #2c5534;
+  --color-leaf-light: #e5f2e7;
+  --color-mint: #f3f9f5;
+  --color-amber: #b8651f;
+  --color-amber-light: #fcefe2;
+  --color-warn: #a04a12;
+  --color-warn-dark: #8a3f0f;
+  --color-warn-light: #fbebdd;
+  --color-rose: #b04040;
+  --color-danger: #8e2424;
+  --color-danger-light: #f9e3e3;
+  --color-plum: #6b55a0;
+  --color-plum-dark: #4e3a75;
+  --color-plum-light: #efe9f7;
+  --color-gold: #c99a2e;
+  --color-gold-light: #fbf3dc;
+  --color-ink: #17292d;
+  --color-body: #33474b;
+  --color-muted: #5a6b6e;
+  --color-faint: #6b7b7e;
+  --color-line: #dce6e8;
+  --color-line-soft: #edf2f3;
+  --color-field: #c9d6d9;
+  --color-canvas: #f2f6f7;
+  --font-sans: "Inter", "Noto Sans Ethiopic", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--color-canvas); color: var(--color-ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+@layer components {
+  .card { background: #fff; border: 1px solid var(--color-line); border-radius: 16px; box-shadow: 0 1px 2px rgb(23 41 45 / 0.05), 0 6px 16px rgb(23 41 45 / 0.05); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 11px; font-size: 14px; font-weight: 600; white-space: nowrap; transition: background-color .15s, border-color .15s, box-shadow .15s, opacity .15s; cursor: pointer; border: 0; }
+  .btn:disabled { opacity: .55; cursor: default; }
+  .btn-primary { background: var(--color-brand); color: #fff; box-shadow: 0 2px 6px rgb(31 110 127 / .25); }
+  .btn-primary:hover { background: var(--color-brand-dark); }
+  .btn-secondary { background: #fff; color: var(--color-ink); border: 1px solid var(--color-field); font-weight: 500; }
+  .btn-secondary:hover { border-color: var(--color-brand); color: var(--color-brand); }
+  .btn-green { background: var(--color-leaf); color: #fff; }
+  .btn-green:hover { background: var(--color-leaf-dark); }
+  .btn-soft-green { background: var(--color-leaf-light); color: var(--color-leaf-dark); }
+  .btn-danger { background: #fff; color: var(--color-danger); border: 1px solid #e7b9b9; }
+  .btn-sm { height: 36px; padding: 0 12px; font-size: 13px; border-radius: 9px; }
+  .input { width: 100%; height: 44px; padding: 0 12px; border: 1px solid var(--color-field); border-radius: 10px; background: #fff; font: inherit; font-size: 15px; color: var(--color-ink); }
+  textarea.input { height: auto; min-height: 88px; padding: 10px 12px; }
+  .label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500; color: var(--color-body); }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--color-muted); }
+  .pill { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 15px; border-radius: 999px; font-size: 13px; border: 1px solid var(--color-field); background: #fff; color: var(--color-ink); white-space: nowrap; cursor: pointer; }
+  .chip:hover { border-color: var(--color-brand); }
+}
+.input:focus, .btn:focus-visible, a:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--color-sky-soft); outline-offset: 2px; }
+@layer base { button, select, input, textarea { font-family: inherit; } }
